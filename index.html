@@ -3,14 +3,43 @@
 <head>
     <meta charset="utf-8">
     <title>Redirecting...</title>
-    <!-- Standard Meta Refresh Redirect -->
-    <meta http-equiv="refresh" content="0; url=https://issb-app.pages.dev/">
-    <!-- Fallback JavaScript Redirect -->
+    
+    <!-- Force browsers and Service Workers not to cache this redirect page -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <script type="text/javascript">
-        window.location.href = "https://issb-app.pages.dev/";
+        // 1. Unregister any existing Service Workers to break the PWA cache
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            }).catch(function(err) {
+                console.log('Service Worker unregistration failed: ', err);
+            });
+        }
+
+        // 2. Clear out application caches
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (let name of names) caches.delete(name);
+            });
+        }
+
+        // 3. Redirect to the new Cloudflare Pages site
+        // Using window.location.replace prevents the old page from breaking the browser "Back" button
+        setTimeout(function() {
+            window.location.replace("https://pages.dev");
+        }, 100); // Tiny delay to ensure unregistration code executes
     </script>
+
+    <!-- Fallback Meta Refresh Redirect if JS fails -->
+    <meta http-equiv="refresh" content="0; url=https://pages.dev">
 </head>
 <body>
-    <p>This page has moved. If you are not redirected automatically, follow this <a href="https://issb-app.pages.dev/">link to the new site</a>.</p>
+    <p>This page has moved. You are being redirected to the new site...</p>
+    <p>If you are not redirected automatically, please follow this <a href="https://pages.dev">link to the new site</a>.</p>
 </body>
 </html>
